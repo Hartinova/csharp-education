@@ -62,7 +62,7 @@ namespace Phonebook
       Console.WriteLine($"У абонента {abonent.Id} изменен номер:");
       phonebook.PrintAbonents();
 
-      phonebook.SaveToFile();
+      phonebook.SaveToFile(Phonebook.Model.Phonebook.FilePhonebook);
     }
 
     /// <summary>
