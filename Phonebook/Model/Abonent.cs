@@ -11,6 +11,8 @@ namespace Phonebook.Model
   /// </summary>
   public class Abonent
   {
+    #region Поля и свойства
+
     /// <summary>
     /// Максимальное количество знаков в телефоне.
     /// </summary>
@@ -19,7 +21,7 @@ namespace Phonebook.Model
     /// <summary>
     /// Идентификатор абонента.
     /// </summary>
-    public int Id { get;private set; }
+    public int Id { get; private set; }
 
     /// <summary>
     /// Имя абонента.
@@ -29,26 +31,36 @@ namespace Phonebook.Model
     /// <summary>
     /// Имя абонента.
     /// </summary>
-    public string Name 
+    /// <exception cref="ArgumentNullException">Исключение возникает, если не введено имя абонента.</exception>
+    /// <exception cref="ArgumentException">Исключение возникает, если введено пустое имя абонента.</exception>
+    public string Name
     {
       get
       {
         return name;
-      } 
+      }
       private set
       {
+        if (value == null)
+        {
+          throw new ArgumentNullException(Constants.ArgumentNullExceptionMessage);
+        }
+        if (value.Trim() == "")
+        {
+          throw new ArgumentException(Constants.EmptyExceptionMessage);
+        }
         name = value.Trim();
       }
     }
-    
+
     /// <summary>
     /// Имя в нижней раскладке.
     /// </summary>
     public string NameLower
     {
       get
-      { 
-        return name.ToLower(); 
+      {
+        return name.ToLower();
       }
     }
 
@@ -60,24 +72,38 @@ namespace Phonebook.Model
     /// <summary>
     /// Номер телефона.
     /// </summary>
-    public string PhoneNumber 
+    /// <exception cref="ArgumentNullException">Исключение возникает, если не введен номер телефона.</exception>
+    /// <exception cref="ArgumentException">Исключение возникает, если введен пустой номер телефона либо введен некорректно.</exception>
+    public string PhoneNumber
     {
-      get 
-      {  
-        return phoneNumber; 
+      get
+      {
+        return phoneNumber;
       }
       set
       {
+        if (value == null)
+        {
+          throw new ArgumentNullException(Constants.ArgumentNullExceptionMessage);
+        }
+        if (value.Trim() == "")
+        {
+          throw new ArgumentException(Constants.EmptyExceptionMessage);
+        }
         if (value.Length <= MaxLengthPhone && long.TryParse(value, out long phone))
         {
           phoneNumber = value.Trim();
         }
         else
         {
-          throw new ArgumentException($"Неверный формат номера телефона {value}.");
+          throw new ArgumentException(String.Format(Constants.InvalidNumberPhone, value));
         }
       }
     }
+
+    #endregion
+
+    #region Методы
 
     /// <summary>
     /// Изменить имя абонента.
@@ -94,14 +120,26 @@ namespace Phonebook.Model
     /// <param name="phoneNumber">Присваиваемое значение номера телефона.</param>
     public void ChangeNumber(string phoneNumber)
     {
-      this.phoneNumber = phoneNumber;
+      this.PhoneNumber = phoneNumber;
     }
 
+    #endregion
+
+    #region Конструкторы
+
+    /// <summary>
+    /// Конструктор.
+    /// </summary>
+    /// <param name="id">Идентификатор абонента.</param>
+    /// <param name="name">Имя.</param>
+    /// <param name="phone">Номер телефона.</param>
     public Abonent(int id, string name, string phone)
     {
       this.Id = id;
       this.Name = name;
-      this.phoneNumber = phone;
+      this.PhoneNumber = phone;
     }
+
+    #endregion
   }
 }
