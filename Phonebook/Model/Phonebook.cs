@@ -11,6 +11,8 @@ namespace Phonebook.Model
   /// </summary>
   public class Phonebook
   {
+    #region Поля и свойства
+
     /// <summary>
     /// Путь к текстовому файлу с телефонной книгой.
     /// </summary>
@@ -41,6 +43,10 @@ namespace Phonebook.Model
         return phonebook;
       }
     }
+
+    #endregion
+
+    #region Методы
 
     /// <summary>
     /// Считать абонентов из файла.
@@ -102,12 +108,20 @@ namespace Phonebook.Model
     /// </summary>
     /// <param name="name">Имя абонента.</param>
     /// <param name="phoneNumber">Номер телефона.</param>
-    /// <exception cref="ArgumentException">Исключение вызывается, если абонент уже присутствует в списке абонентов.</exception>
+    /// <exception cref="ArgumentNullException">Исключение вызывается, если не введено имя или номер телефона для ввода в справочник.</exception>
+    /// <exception cref="ArgumentException">Исключение вызывается, если ввдено пустое имя или пустой номер или абонент уже присутствует в списке абонентов.</exception>
     public void AddAbonent(string name, string phoneNumber)
     {
+      if (name == null)
+      {
+        throw new ArgumentNullException("Не введено имя абонента");
+      }
       if (!GetPhoneNumberByName(name, out string number))
       {
-        var abonent = new Abonent(GetNewAbonentId(), name, phoneNumber);
+        Abonent abonent;
+
+        abonent = new Abonent(GetNewAbonentId(), name, phoneNumber);
+
         Abonents.Add(abonent);
       }
       else
@@ -117,11 +131,51 @@ namespace Phonebook.Model
     }
 
     /// <summary>
+    /// Получить абонента из списка.
+    /// </summary>
+    /// <param name="name">Имя абонента.</param>
+    /// <returns>Найденный абонент.</returns>
+    /// <exception cref="ArgumentNullException">Исключение возникает, если не введено имя абонента для поиска.</exception>
+    /// <exception cref="ArgumentException">Исключение вызывается, если введено пустое имя или абонент уже присутствует в списке абонентов.</exception>
+    public Abonent GetAbonent(string name)
+    {
+      if (name == null)
+      {
+        throw new ArgumentNullException("Не введено имя для поиска абонента.");
+      }
+      if (name.Trim() == "")
+      {
+        throw new ArgumentException("Введено пустое имя при поиске абонента.");
+      }
+      if (this.Abonents == null)
+      {
+        return null;
+      }
+      else
+      {
+        return this.Abonents.Where(e => e.Name == name).FirstOrDefault();
+      }
+    }
+
+    /// <summary>
+    /// Удалить всех абонентов из списка;
+    /// </summary>
+    public void RemoveAbonents()
+    {
+      this.Abonents = new List<Abonent>();
+    }
+
+    /// <summary>
     /// Удалить абонента из списка.
     /// </summary>
     /// <param name="abonent">Удаляемый абонент.</param>
+    /// <exception cref="ArgumentNullException">Исключение возникает, если не ввден абонент для удаления.</exception>
     public void DeleteAbonent(Abonent abonent)
     {
+      if (abonent == null)
+      {
+        throw new ArgumentNullException("Не введен абонент для удаления.");
+      }
       Abonents.Remove(abonent);
     }
 
@@ -131,8 +185,18 @@ namespace Phonebook.Model
     /// <param name="name">Имя абонента.</param>
     /// <param name="number">Номер абонента.</param>
     /// <returns>Результат поиска - true если найден, иначе false</returns>
+    /// <exception cref="ArgumentNullException">Исключение возникает, если не введено имя абонента для поиска.</exception>
+    /// <exception cref="ArgumentException">Исключение вызывается, если введено пустое имя.</exception>
     public bool GetPhoneNumberByName(string name, out string number)
     {
+      if (name == null)
+      {
+        throw new ArgumentNullException("Не введено имя для поиска абонента.");
+      }
+      if (name.Trim() == "")
+      {
+        throw new ArgumentException("Введено пустое имя при поиске абонента.");
+      }
       number = "";
       bool result = false;
       name = name.Trim().ToLower();
@@ -153,8 +217,18 @@ namespace Phonebook.Model
     /// <param name="number">Номер телефона.</param>
     /// <param name="name">Имя абонента.</param>
     /// <returns>Результат поиска - true если найден, иначе false</returns>
+    /// <exception cref="ArgumentNullException">Исключение возникает, если не введен номер абонента для поиска.</exception>
+    /// <exception cref="ArgumentException">Исключение вызывается, если введен пустой номер.</exception>
     public bool GetNameByPhoneNumber(string number, out string name)
     {
+      if (number == null)
+      {
+        throw new ArgumentNullException("Не введен номер для поиска абонента.");
+      }
+      if (number.Trim() == "")
+      {
+        throw new ArgumentException("Введен пустой номер при поиске абонента.");
+      }
       name = "";
       bool result = false;
       number = number.Trim();
@@ -172,11 +246,23 @@ namespace Phonebook.Model
     /// <summary>
     /// Сохранить список абонентов в файл.
     /// </summary>
-    public void SaveToFile()
+    /// <param name="fileName">Имя файла.</param>
+    /// <exception cref="ArgumentNullException">Исключение возникает, если не введено имя файла.</exception>
+    /// <exception cref="ArgumentException">Исключение вызывается, если введено пустое имя файла.</exception>
+    ///<exception cref="Exception">Исключение возникает, если возникла ошибка при сохранении файла.</exception>
+    public void SaveToFile(string fileName)
     {
+      if (fileName == null)
+      {
+        throw new ArgumentNullException("Не введено имя файла.");
+      }
+      if (fileName.Trim() == "")
+      {
+        throw new ArgumentException("Введено пустое имя файла.");
+      }
       try
       {
-        StreamWriter sw = new StreamWriter(FilePhonebook);
+        StreamWriter sw = new StreamWriter(fileName);
 
         foreach (Abonent abonent in Abonents)
         {
@@ -203,9 +289,18 @@ namespace Phonebook.Model
       Console.ReadLine();
     }
 
+    #endregion
+
+    #region Конструкторы
+
+    /// <summary>
+    /// Конструктор.
+    /// </summary>
     private Phonebook()
     {
       Abonents = ReadAbonentsFromFile();
     }
+
+    #endregion
   }
 }
